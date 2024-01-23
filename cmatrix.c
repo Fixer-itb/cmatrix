@@ -390,3 +390,15 @@ extern void CmatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row
 		}
 	}
 }
+
+/**
+ * @brief 矩阵原地转置.
+ * 
+ * @param matrix 待转置矩阵
+ * @param row 矩阵行数
+ * @param column 矩阵列数
+ * @param type 矩阵元素类型
+ */
+extern void CmatrixT_Situ(void* matrix, int row, int column, char type) {
+
+}
