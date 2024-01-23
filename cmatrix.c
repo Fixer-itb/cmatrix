@@ -298,31 +298,21 @@ extern void CvectorNormalizei(const int* vec, int* vecnormalized, int dimension)
 	while (--tempdim >= 0)	vecnormalized[tempdim] = vec[tempdim] / sqrt(result);
 }
 
-
-/* multiply matrix ------------------------------------------------------------
-* multiply matrix by matrix (C=alpha*A*B+beta*C)
-* args   : char   *tr       I  transpose flags ("N":normal,"T":transpose)
-*          int    n,k,m     I  size of (transposed) matrix A,B
-*          double alpha     I  alpha
-*          double *A,*B     I  (transposed) matrix A (n x m), B (m x k)
-*          double beta      I  beta
-*          double *C        IO matrix C (n x k)
-* return : none
-*-----------------------------------------------------------------------------*/
 /**
- * @brief 实现矩阵乘法，并且可以在不改变原矩阵的情况下进行转置后相乘的操作.
- *
- * @param tr
- * @param rowL
- * @param midLR
- * @param columnR
- * @param alpha
- * @param matl
- * @param matr
- * @param beta
- * @param C
+ * @brief 矩阵乘法计算 result=alpha*MAT_LEFT*MAT_RIGHT+beta*RESULT(if beta != 0.0 & RESULT != NULL).\
+ *				   result=alpha*MAT_LEFT*MAT_RIGHT(if beta = 0.0).
+ * 
+ * @param tr	是否对两个矩阵进行转置(N,不转置), (T,转置)
+ * @param rowL 左边矩阵的行数
+ * @param midLR 左边矩阵的列数和右边矩阵的行数
+ * @param columnR 右边矩阵的列数
+ * @param alpha 左右矩阵的系数(数乘)
+ * @param matl 左矩阵地址
+ * @param matr 右矩阵地址
+ * @param beta 结果矩阵作为已有矩阵时的系数
+ * @param result 计算结果
  */
-extern void CmatrixMul(const char* tr, int rowL, int midLR, int columnR, double alpha, const double* matl, const double* matr, double beta, double* C)
+extern void CmatrixMul(const char* tr, int rowL, int midLR, int columnR, double alpha, const double* matl, const double* matr, double beta, double* result)
 {
 	double temp;
 	int i, j, k, f = tr[0] == 'N' ? (tr[1] == 'N' ? 1 : 2) : (tr[1] == 'N' ? 3 : 4);
@@ -334,8 +324,9 @@ extern void CmatrixMul(const char* tr, int rowL, int midLR, int columnR, double 
 		else {
 			if (tr[1] == 'N') f = 3; "TN"
 			else f = 4;              "TT"
-	}*/
-	//只看[i,k]获取matL元素，只看[k,j]获取matR元素
+		}
+	*/
+	//!只看[i,k]获取matL元素，只看[k,j]获取matR元素
 	for (i = 0; i < rowL; i++) {
 		for (j = 0; j < columnR; j++) {
 			temp = 0.0;
@@ -362,8 +353,9 @@ extern void CmatrixMul(const char* tr, int rowL, int midLR, int columnR, double 
 				}
 				break;
 			}
-			if (beta == 0.0) C[i * columnR + j] = alpha * temp;
-			else C[i * columnR + j] = alpha * temp + beta * C[i * columnR + j];
+			if (beta == 0.0) result[i * columnR + j] = alpha * temp;
+			else result[i * columnR + j] = alpha * temp + beta * result[i * columnR + j];
 		}
 	}
 }
+

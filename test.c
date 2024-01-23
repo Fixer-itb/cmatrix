@@ -57,7 +57,7 @@ int main() {
 	CmatrixShow(matR, 3, 4, 'd');
 
 	double* matResultown = CMatrixd(5, 3);
-	CmatrixMul("TT", 5, 4, 3, 1, matL, matR, 0.0, matResultown);
+	CmatrixMul("TT", 5, 4, 3, 1, matL, matR, 2.0, matResultown);
 	CmatrixShow(matResultown, 5, 3, 'd');
 
 	/*double elemL2[9] = { 1,2,3,4,5,6,7,8,9 };
