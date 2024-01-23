@@ -93,7 +93,7 @@ extern int* CMatrixZerosi(int row, int column)
 
 /**
  * @brief 创建单位矩阵.
- * 
+ *
  * @param rank 单位矩阵的秩
  * @return 矩阵地址
  */
@@ -138,6 +138,11 @@ extern int CmatrixShow(void* matrix, int row, int column, char type) {
 		return 0;
 	}
 	printf(">>Matrix addr:%x\n", matrix);
+	//for (int k = 0; k < row * column; k++)
+	//{
+	//	printf(" %0.5f", ((double*)matrix)[k]);
+	//}
+	//printf("\n");
 	int i, j;
 	for (i = 0; i < row; i++) {
 		for (j = 0; j < column; j++) {
@@ -162,7 +167,7 @@ extern int CmatrixShow(void* matrix, int row, int column, char type) {
 
 /**
  * @brief 矩阵/数组复制.
- * 
+ *
  * @param matrix_dest 目标矩阵
  * @param matrix_src	源矩阵
  * @param row	矩阵行
@@ -190,7 +195,7 @@ extern void CmatrixCopy(void* matrix_dest, const void* matrix_src, int row, int 
 
 /**
  * @brief 计算两个n维列向量的内积.
- * 
+ *
  * @param vec1 向量1
  * @param vec2 向量2
  * @param dimension 维数
@@ -214,7 +219,7 @@ extern int CvectorDoti(const int* vec1, const int* vec2, int dimension) {
 
 /**
  * @brief 三维向量外积.
- * 
+ *
  * @param vecl 左向量
  * @param vecr 右向量
  * @param result 结果
@@ -266,7 +271,7 @@ extern int CvectorNormi(const int* vec, int dimension)
 
 /**
  * @brief 向量归一化.
- * 
+ *
  * @param vec 归一化前的向量
  * @param vecnormalized 归一化后的向量
  * @param dimension 维度
@@ -304,11 +309,22 @@ extern void CvectorNormalizei(const int* vec, int* vecnormalized, int dimension)
 *          double *C        IO matrix C (n x k)
 * return : none
 *-----------------------------------------------------------------------------*/
-
-									//    rowL  colLrowR   colR
+/**
+ * @brief 实现矩阵乘法，并且可以在不改变原矩阵的情况下进行转置后相乘的操作.
+ *
+ * @param tr
+ * @param rowL
+ * @param midLR
+ * @param columnR
+ * @param alpha
+ * @param matl
+ * @param matr
+ * @param beta
+ * @param C
+ */
 extern void CmatrixMul(const char* tr, int rowL, int midLR, int columnR, double alpha, const double* matl, const double* matr, double beta, double* C)
 {
-	double d;
+	double temp;
 	int i, j, k, f = tr[0] == 'N' ? (tr[1] == 'N' ? 1 : 2) : (tr[1] == 'N' ? 3 : 4);
 	/*
 		if (tr[0]=='N') {
@@ -319,41 +335,35 @@ extern void CmatrixMul(const char* tr, int rowL, int midLR, int columnR, double 
 			if (tr[1] == 'N') f = 3; "TN"
 			else f = 4;              "TT"
 	}*/
-
-	for (i = 0; i < rowL; i++) {	//行
-		for (j = 0; j < columnR; j++) {	//列
-			d = 0.0;
+	//只看[i,k]获取matL元素，只看[k,j]获取matR元素
+	for (i = 0; i < rowL; i++) {
+		for (j = 0; j < columnR; j++) {
+			temp = 0.0;
 			switch (f) {
-			case 1: //NN
+			case 1: //"NN"  A*B   matl[i,k] × matr[k,j]	//A行 = B列 = A行乘B列 = midLR
 				for (k = 0; k < midLR; k++) {
-					//matl第i行，第x列
-					d += matl[i * midLR+k] * matr[j + k * columnR];
+					temp += matl[i * midLR + k] * matr[k * columnR + j];
 				}
-				break;//"NN"  A*B
-			//case 2: for (x = 0; x < colLrowR; x++) d += matl[i + x * rowL] * matr[j + x * colR]; break;//"NT"  A*B'
-			//case 3: for (x = 0; x < colLrowR; x++) d += matl[x + i * colLrowR] * matr[x + j * colLrowR]; break;//"TN"  A'*B
-			//case 4: for (x = 0; x < colLrowR; x++) d += matl[x + i * colLrowR] * matr[j + x * colR]; break;//"TT"  A'*B'
+				break;
+			case 2: //"NT"  A*B'  matl[i,k] × matr[j,k]' //能计算的前提是[列数]一定是一样的 = A行乘B行 = midLR
+				for (k = 0; k < midLR; k++) {
+					//temp += matl[i * midLR + k] * matr[j * midLR + k];
+					temp += matl[i * midLR + k] * matr[j * midLR + k];
+				}
+				break;
+			case 3: //"TN"  A'*B  matl[k,i]' × matr[k,j]  //能计算的前提是[行数]一定是一样的 = A列乘B列 = midLR
+				for (k = 0; k < midLR; k++) {
+					temp += matl[k * rowL + i] * matr[k * columnR + j];
+				}
+				break;
+			case 4: //"TT"  A'*B' matl[k,i]' × matr[j,k]' //能计算的前提是A的列数=B的行数 = A列乘B行 = midLR
+				for (k = 0; k < midLR; k++) {
+					temp += matl[k * rowL + i] * matr[j * midLR + k];
+				}
+				break;
 			}
-			if (beta == 0.0) C[i * columnR + j] = alpha * d;
-			else C[i * columnR + j] = alpha * d + beta * C[i * columnR + j];
+			if (beta == 0.0) C[i * columnR + j] = alpha * temp;
+			else C[i * columnR + j] = alpha * temp + beta * C[i * columnR + j];
 		}
-	}
-}
-
-extern void matmul(const char* tr, int n, int k, int m, double alpha,
-	const double* A, const double* B, double beta, double* C)
-{
-	double d;
-	int i, j, x, f = tr[0] == 'N' ? (tr[1] == 'N' ? 1 : 2) : (tr[1] == 'N' ? 3 : 4);
-
-	for (i = 0; i < n; i++) for (j = 0; j < k; j++) {
-		d = 0.0;
-		switch (f) {
-		case 1: for (x = 0; x < m; x++) d += A[i + x * n] * B[x + j * m]; break;
-		case 2: for (x = 0; x < m; x++) d += A[i + x * n] * B[j + x * k]; break;
-		case 3: for (x = 0; x < m; x++) d += A[x + i * m] * B[x + j * m]; break;
-		case 4: for (x = 0; x < m; x++) d += A[x + i * m] * B[j + x * k]; break;
-		}
-		if (beta == 0.0) C[i + j * n] = alpha * d; else C[i + j * n] = alpha * d + beta * C[i + j * n];
 	}
 }

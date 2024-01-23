@@ -25,6 +25,4 @@ extern void Cvector3dCrossd(const double* vecl, const double* vecr, double* resu
 extern void Cvector3dCrossf(const float* vecl, const float* vecr, float* result);
 extern void Cvector3dCrossi(const int* vecl, const int* vecr, int* result);
 extern void CmatrixMul(const char* tr, int rowL, int midLR, int columnR, double alpha, const double* matl, const double* matr, double beta, double* C);
-extern void matmul(const char* tr, int n, int k, int m, double alpha,
-	const double* A, const double* B, double beta, double* C);
 #endif // !__CMATRIX_H__

@@ -27,33 +27,76 @@ int main() {
 	CmatrixShow(vec1, 3, 1, 'd');
 	CmatrixShow(vec1, 3, 1, 'd');
 
-	double elemL[6] = { 1,2,3,4,5,6 };
-	double* matL = CMatrixd(2, 3);
-	CmatrixCopy(matL, elemL, 2, 3, 'd');
-	CmatrixShow(matL, 2, 3, 'd');
-
-	double elemR[6] = { 7,8,9,10,11,12 };
-	double* matR = CMatrixd(3, 2);
-	CmatrixCopy(matR, elemR, 3, 2, 'd');
-	CmatrixShow(matR, 3, 2, 'd');
-
-	double* matResultown = CMatrixd(2, 2);
-	CmatrixMul("NN", 2, 3, 2, 1, matL, matR, 0.0, matResultown);
-	CmatrixShow(matResultown, 2, 2, 'd');
 
 
-	double* matResultignav = CMatrixd(2, 2);
-	matmul("NN", 2, 2, 3, 1, matL, matR, 0.0, matResultignav);
-	CmatrixShow(matResultignav, 2, 2, 'd');
+/***********************¾ØÕó³Ë·¨²âÊÔ**************************/
+
+	//double elemL[6] = { 1,2,3,4,5,6 };
+	//double* matL = CMatrixd(3, 2);
+	//CmatrixCopy(matL, elemL, 3, 2, 'd');
+	//CmatrixShow(matL, 3, 2, 'd');
+
+	//double elemR[6] = { 7,8,9,10,11,12 };
+	//double* matR = CMatrixd(2, 3);
+	//CmatrixCopy(matR, elemR, 2, 3, 'd');
+	//CmatrixShow(matR, 2, 3, 'd');
+
+	//double* matResultown = CMatrixd(2, 2);
+	//CmatrixMul("TT", 2, 3, 2, 1, matL, matR, 0.0, matResultown);
+	//CmatrixShow(matResultown, 2, 2, 'd');
 
 
-	/*
-	>>Matrix addr:6d9ce560
-58.0000000000   64.0000000000
-139.0000000000  154.0000000000
->>Matrix addr:6d9ce5c0
-76.0000000000   100.0000000000
-103.0000000000  136.0000000000
-	*/
+	double elemL[20] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19 };
+	double* matL = CMatrixd(4, 5);
+	CmatrixCopy(matL, elemL, 4, 5, 'd');
+	CmatrixShow(matL, 4, 5, 'd');
+
+	double elemR[12] = { 0,1,2,3,4,5,6,7,8,9,10,11 }; 
+	double* matR = CMatrixd(3, 4);
+	CmatrixCopy(matR, elemR, 3, 4, 'd');
+	CmatrixShow(matR, 3, 4, 'd');
+
+	double* matResultown = CMatrixd(5, 3);
+	CmatrixMul("TT", 5, 4, 3, 1, matL, matR, 0.0, matResultown);
+	CmatrixShow(matResultown, 5, 3, 'd');
+
+	/*double elemL2[9] = { 1,2,3,4,5,6,7,8,9 };
+	double* matL2 = CMatrixd(3, 3);
+	CmatrixCopy(matL2, elemL2, 3, 3, 'd');
+	CmatrixShow(matL2, 3, 3, 'd');
+
+	double elemR2[9] = { 1,2,3,4,5,6,7,8,9 };
+	double* matR2 = CMatrixd(3, 3);
+	CmatrixCopy(matR2, elemR2, 3, 3, 'd');
+	CmatrixShow(matR2, 3, 3, 'd');
+
+	double* matResultown2 = CMatrixd(3, 3);
+	CmatrixMul("NN", 3, 3, 3, 1, matL2, matR2, 0.0, matResultown2);
+	CmatrixShow(matResultown2, 3, 3, 'd');
+
+	CmatrixMul("NT", 3, 3, 3, 1, matL2, matR2, 0.0, matResultown2);
+	CmatrixShow(matResultown2, 3, 3, 'd');*/
+
+	//int matrix[12] = { 0,1,2,3,4,5,6,7,8,9,10,11 };
+	//int row = 3, column = 4;
+	///*
+	//0  1  2  3
+	//4  5  6  7
+	//8  9 10 11
+	//*/
+	//int i = 0, j = 0;
+	//for (i = 0; i < row; i++) {
+	//	for (j = 0; j < column; j++) {
+	//		printf("The [%d,%d] element is %d through row\n", i, j, matrix[i * column + j]);
+	//	}
+	//}
+	//for (i = 0; i < column; i++) {
+	//	for (j = 0; j < row; j++) {
+	//		printf("The [%d,%d] element is %d through column\n", i, j, matrix[j*column + i]);
+	//	}
+	//}
+
+
+
 	return 1;
 }
