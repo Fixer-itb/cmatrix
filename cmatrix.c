@@ -359,3 +359,34 @@ extern void CmatrixMul(const char* tr, int rowL, int midLR, int columnR, double 
 	}
 }
 
+/**
+ * @brief 实现矩阵转置.
+ * 
+ * @param matrixT_dest 目标矩阵(转置后的矩阵)
+ * @param matrix_src 原矩阵
+ * @param matrixT_row 转置后矩阵的行数
+ * @param matrixT_column 转置后矩阵的列数
+ * @param type 矩阵元素的类型
+ */
+//TODO 中间插入一个中间变量矩阵，实现原地矩阵转置
+extern void CmatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row, int matrixT_column,  char type) {
+	int i, j;
+	for (i = 0; i < matrixT_row; i++) {
+		for (j = 0; j < matrixT_column; j++){
+			switch (type) {
+			case 'i':
+				((int*)matrixT_dest)[i * matrixT_column + j] = ((int*)matrix_src)[j * matrixT_row + i];
+				break;
+			case 'f':
+				((float*)matrixT_dest)[i * matrixT_column + j] = ((float*)matrix_src)[j * matrixT_row + i];
+				break;
+			case 'd':
+				((double*)matrixT_dest)[i * matrixT_column + j] = ((double*)matrix_src)[j * matrixT_row + i];
+				break;
+			default:
+				((double*)matrixT_dest)[i * matrixT_column + j] = ((double*)matrix_src)[j * matrixT_row + i];
+				return 0;
+			}
+		}
+	}
+}
