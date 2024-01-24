@@ -63,6 +63,20 @@ int main() {
 	double* matResultT = CMatrixd(3, 5);
 	CmatrixT(matResultT, matResultown, 3, 5, 'd');
 	CmatrixShow(matResultT, 3, 5, 'd');
+
+	double elementBlock[9] = { 0,1,2,3,4,5,6,7,8 };
+	double elementBlock2[9] = { 1,1,1,1,1,1,1,1,1 };
+	double* matBlock = CMatrixd(3, 3);
+	double* matBlock2 = CMatrixd(3, 3);
+	CmatrixCopy(matBlock, elementBlock, 3, 3, 'd');
+	CmatrixCopy(matBlock2, elementBlock2, 3, 3, 'd');
+
+	double* matLarge = CMatrixZerosd(10, 10);
+	CmatrixBlockFill(matLarge, 10, 10, matBlock, 3, 3, 1, 1);
+	CmatrixBlockFill(matLarge, 10, 10, matBlock2, 3, 3, 7, 7);
+	
+	CmatrixShow(matLarge,10,10,'d');
+
 	/*double elemL2[9] = { 1,2,3,4,5,6,7,8,9 };
 	double* matL2 = CMatrixd(3, 3);
 	CmatrixCopy(matL2, elemL2, 3, 3, 'd');

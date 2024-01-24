@@ -301,7 +301,7 @@ extern void CvectorNormalizei(const int* vec, int* vecnormalized, int dimension)
 /**
  * @brief 矩阵乘法计算 result=alpha*MAT_LEFT*MAT_RIGHT+beta*RESULT(if beta != 0.0 & RESULT != NULL).\
  *				   result=alpha*MAT_LEFT*MAT_RIGHT(if beta = 0.0).
- * 
+ *
  * @param tr	是否对两个矩阵进行转置(N,不转置), (T,转置)
  * @param rowL 左边矩阵的行数
  * @param midLR 左边矩阵的列数和右边矩阵的行数
@@ -361,18 +361,17 @@ extern void CmatrixMul(const char* tr, int rowL, int midLR, int columnR, double 
 
 /**
  * @brief 实现矩阵转置.
- * 
+ *
  * @param matrixT_dest 目标矩阵(转置后的矩阵)
  * @param matrix_src 原矩阵
  * @param matrixT_row 转置后矩阵的行数
  * @param matrixT_column 转置后矩阵的列数
  * @param type 矩阵元素的类型
  */
-//TODO 中间插入一个中间变量矩阵，实现原地矩阵转置
-extern void CmatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row, int matrixT_column,  char type) {
+extern void CmatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row, int matrixT_column, char type) {
 	int i, j;
 	for (i = 0; i < matrixT_row; i++) {
-		for (j = 0; j < matrixT_column; j++){
+		for (j = 0; j < matrixT_column; j++) {
 			switch (type) {
 			case 'i':
 				((int*)matrixT_dest)[i * matrixT_column + j] = ((int*)matrix_src)[j * matrixT_row + i];
@@ -393,12 +392,33 @@ extern void CmatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row
 
 /**
  * @brief 矩阵原地转置.
- * 
+ *
  * @param matrix 待转置矩阵
  * @param row 矩阵行数
  * @param column 矩阵列数
  * @param type 矩阵元素类型
  */
-extern void CmatrixT_Situ(void* matrix, int row, int column, char type) {
+extern void CmatrixT_Situ(double* matrix, int row, int col) {
+	return 0;
+}
 
+/**
+ * @brief 将一个小矩阵插入一个大矩阵中，小矩阵左上角对齐在大矩阵的(fillLocRow,fillLocCol)处.
+ *
+ * @param destMat 被插入的矩阵(大矩阵)
+ * @param destRow	被插入矩阵的行数
+ * @param destCol 被插入矩阵的列数
+ * @param blockMat	插入矩阵
+ * @param blockRow	插入矩阵的行数
+ * @param blockCol	插入矩阵的列数
+ * @param fillLocRow	左上角行数
+ * @param fillLocCol	左上角列数
+ */
+extern void CmatrixBlockFill(double* destMat, int destRow, int destCol, const double* blockMat, int blockRow, int blockCol, int fillLocRow, int fillLocCol) {
+	int i, j;
+	for (i = fillLocRow; i < fillLocRow + blockRow; i++) {//大矩阵的行，从插入列开始
+		for (j = fillLocCol; j < fillLocCol + blockCol; j++) {//大矩阵的列，从插入列开始
+			destMat[i * destCol + j] = blockMat[(i - fillLocRow) * blockCol + (j - fillLocCol)];//按行遍历
+		}
+	}
 }
