@@ -28,4 +28,6 @@ extern void CmatrixMul(const char* tr, int rowL, int midLR, int columnR, double 
 extern void CmatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row, int matrixT_column, char type);
 extern void CmatrixT_Situ(double* matrix, int row, int column);
 extern void CmatrixBlockFill(double* destMat, int destRow, int destCol, const double* blockMat, int blockRow, int blockCol, int fillLocRow, int fillLocCol);
+
+extern int matinv(double* A, int n);
 #endif // !__CMATRIX_H__

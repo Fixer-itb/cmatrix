@@ -77,6 +77,8 @@ int main() {
 	
 	CmatrixShow(matLarge,10,10,'d');
 
+
+
 	/*double elemL2[9] = { 1,2,3,4,5,6,7,8,9 };
 	double* matL2 = CMatrixd(3, 3);
 	CmatrixCopy(matL2, elemL2, 3, 3, 'd');

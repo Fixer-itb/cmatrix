@@ -399,6 +399,7 @@ extern void CmatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row
  * @param type 矩阵元素类型
  */
 extern void CmatrixT_Situ(double* matrix, int row, int col) {
+	//TODO TODO
 	return 0;
 }
 
@@ -421,4 +422,72 @@ extern void CmatrixBlockFill(double* destMat, int destRow, int destCol, const do
 			destMat[i * destCol + j] = blockMat[(i - fillLocRow) * blockCol + (j - fillLocCol)];//按行遍历
 		}
 	}
+}
+
+
+/* LU decomposition ----------------------------------------------------------*/
+static int ludcmp(double* A, int n, int* indx, double* d)
+{
+	double big, s, tmp, * vv = CMatrixd(n, 1);
+	int i, imax = 0, j, k;
+
+	*d = 1.0;
+	for (i = 0; i < n; i++) {
+		big = 0.0; for (j = 0; j < n; j++) if ((tmp = fabs(A[i + j * n])) > big) big = tmp;
+		if (big > 0.0) vv[i] = 1.0 / big; else { free(vv); return -1; }
+	}
+	for (j = 0; j < n; j++) {
+		for (i = 0; i < j; i++) {
+			s = A[i + j * n]; for (k = 0; k < i; k++) s -= A[i + k * n] * A[k + j * n]; A[i + j * n] = s;
+		}
+		big = 0.0;
+		for (i = j; i < n; i++) {
+			s = A[i + j * n]; for (k = 0; k < j; k++) s -= A[i + k * n] * A[k + j * n]; A[i + j * n] = s;
+			if ((tmp = vv[i] * fabs(s)) >= big) { big = tmp; imax = i; }
+		}
+		if (j != imax) {
+			for (k = 0; k < n; k++) {
+				tmp = A[imax + k * n]; A[imax + k * n] = A[j + k * n]; A[j + k * n] = tmp;
+			}
+			*d = -(*d); vv[imax] = vv[j];
+		}
+		indx[j] = imax;
+		if (A[j + j * n] == 0.0) { free(vv); return -1; }
+		if (j != n - 1) {
+			tmp = 1.0 / A[j + j * n]; for (i = j + 1; i < n; i++) A[i + j * n] *= tmp;
+		}
+	}
+	free(vv);
+	return 0;
+}
+/* LU back-substitution ------------------------------------------------------*/
+static void lubksb(const double* A, int n, const int* indx, double* b)
+{
+	double s;
+	int i, ii = -1, ip, j;
+
+	for (i = 0; i < n; i++) {
+		ip = indx[i]; s = b[ip]; b[ip] = b[i];
+		if (ii >= 0) for (j = ii; j < i; j++) s -= A[i + j * n] * b[j]; else if (s) ii = i;
+		b[i] = s;
+	}
+	for (i = n - 1; i >= 0; i--) {
+		s = b[i]; for (j = i + 1; j < n; j++) s -= A[i + j * n] * b[j]; b[i] = s / A[i + i * n];
+	}
+}
+/* inverse of matrix ---------------------------------------------------------*/
+extern int matinv(double* A, int n)
+{
+	double d, * B;
+	int i, j, * indx;
+
+	indx = CMatrixi(n, 1); B = CMatrixd(n, n); CmatrixCopy(B, A, n, n,'d');
+	if (ludcmp(B, n, indx, &d)) { free(indx); free(B); return -1; }
+	for (j = 0; j < n; j++) {
+		for (i = 0; i < n; i++) A[i + j * n] = 0.0;
+		A[j + j * n] = 1.0;
+		lubksb(B, n, indx, A + j * n);
+	}
+	free(indx); free(B);
+	return 0;
 }
