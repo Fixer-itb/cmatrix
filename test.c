@@ -29,7 +29,7 @@ int main() {
 
 
 
-/***********************æÿ’Û≥À∑®≤‚ ‘**************************/
+/*****æÿ’Û≥À∑®≤‚ ‘*****/
 
 	//double elemL[6] = { 1,2,3,4,5,6 };
 	//double* matL = CMatrixd(3, 2);
@@ -44,41 +44,7 @@ int main() {
 	//double* matResultown = CMatrixd(2, 2);
 	//CmatrixMul("TT", 2, 3, 2, 1, matL, matR, 0.0, matResultown);
 	//CmatrixShow(matResultown, 2, 2, 'd');
-
-
-	double elemL[20] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19 };
-	double* matL = CMatrixd(4, 5);
-	CmatrixCopy(matL, elemL, 4, 5, 'd');
-	CmatrixShow(matL, 4, 5, 'd');
-
-	double elemR[12] = { 0,1,2,3,4,5,6,7,8,9,10,11 }; 
-	double* matR = CMatrixd(3, 4);
-	CmatrixCopy(matR, elemR, 3, 4, 'd');
-	CmatrixShow(matR, 3, 4, 'd');
-
-	double* matResultown = CMatrixd(5, 3);
-	CmatrixMul("TT", 5, 4, 3, 1, matL, matR, 0.0, matResultown);
-	CmatrixShow(matResultown, 5, 3, 'd');
-
-	double* matResultT = CMatrixd(3, 5);
-	CmatrixT(matResultT, matResultown, 3, 5, 'd');
-	CmatrixShow(matResultT, 3, 5, 'd');
-
-	double elementBlock[9] = { 0,1,2,3,4,5,6,7,8 };
-	double elementBlock2[9] = { 1,1,1,1,1,1,1,1,1 };
-	double* matBlock = CMatrixd(3, 3);
-	double* matBlock2 = CMatrixd(3, 3);
-	CmatrixCopy(matBlock, elementBlock, 3, 3, 'd');
-	CmatrixCopy(matBlock2, elementBlock2, 3, 3, 'd');
-
-	double* matLarge = CMatrixZerosd(10, 10);
-	CmatrixBlockFill(matLarge, 10, 10, matBlock, 3, 3, 1, 1);
-	CmatrixBlockFill(matLarge, 10, 10, matBlock2, 3, 3, 7, 7);
 	
-	CmatrixShow(matLarge,10,10,'d');
-
-
-
 	/*double elemL2[9] = { 1,2,3,4,5,6,7,8,9 };
 	double* matL2 = CMatrixd(3, 3);
 	CmatrixCopy(matL2, elemL2, 3, 3, 'd');
@@ -96,24 +62,47 @@ int main() {
 	CmatrixMul("NT", 3, 3, 3, 1, matL2, matR2, 0.0, matResultown2);
 	CmatrixShow(matResultown2, 3, 3, 'd');*/
 
-	//int matrix[12] = { 0,1,2,3,4,5,6,7,8,9,10,11 };
-	//int row = 3, column = 4;
-	///*
-	//0  1  2  3
-	//4  5  6  7
-	//8  9 10 11
-	//*/
-	//int i = 0, j = 0;
-	//for (i = 0; i < row; i++) {
-	//	for (j = 0; j < column; j++) {
-	//		printf("The [%d,%d] element is %d through row\n", i, j, matrix[i * column + j]);
-	//	}
-	//}
-	//for (i = 0; i < column; i++) {
-	//	for (j = 0; j < row; j++) {
-	//		printf("The [%d,%d] element is %d through column\n", i, j, matrix[j*column + i]);
-	//	}
-	//}
+
+	double elemL[20] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19 };
+	double* matL = CMatrixd(4, 5);
+	CmatrixCopy(matL, elemL, 4, 5, 'd');
+	CmatrixShow(matL, 4, 5, 'd');
+
+	double elemR[12] = { 0,1,2,3,4,5,6,7,8,9,10,11 }; 
+	double* matR = CMatrixd(3, 4);
+	CmatrixCopy(matR, elemR, 3, 4, 'd');
+	CmatrixShow(matR, 3, 4, 'd');
+
+	double* matResultown = CMatrixd(5, 3);
+	CmatrixMul("TT", 5, 4, 3, 1, matL, matR, 0.0, matResultown);
+	CmatrixShow(matResultown, 5, 3, 'd');
+
+/*****æÿ’Û◊™÷√≥…–¬æÿ’Û≤‚ ‘*****/
+	double* matResultT = CMatrixd(3, 5);
+	CmatrixT(matResultT, matResultown, 3, 5, 'd');
+	CmatrixShow(matResultT, 3, 5, 'd');
+
+/*****æÿ’ÛÃÓ≥‰◊”æÿ’Û≤‚ ‘*****/
+	double elementBlock[9] = { 0,1,2,3,4,5,6,7,8 };
+	double elementBlock2[9] = { 1,1,1,1,1,1,1,1,1 };
+	double* matBlock = CMatrixd(3, 3);
+	double* matBlock2 = CMatrixd(3, 3);
+	CmatrixCopy(matBlock, elementBlock, 3, 3, 'd');
+	CmatrixCopy(matBlock2, elementBlock2, 3, 3, 'd');
+
+	double* matLarge = CMatrixZerosd(10, 10);
+	CmatrixBlockFill(matLarge, 10, 10, matBlock, 3, 3, 1, 1);
+	CmatrixBlockFill(matLarge, 10, 10, matBlock2, 3, 3, 7, 7);
+	CmatrixShow(matLarge,10,10,'d');
+
+/*****æÿ’Û‘≠µÿ◊™÷√≤‚ ‘*****/
+	double elem4T[15] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14 };
+	double* matrix_row = CMatrixd(3, 5);
+	CmatrixCopy(matrix_row, elem4T, 3, 5, 'd');
+	CmatrixShow(matrix_row, 3, 5, 'd');
+	CmatrixT_Situ(matrix_row, 3, 5);
+	CmatrixShow(matrix_row, 5, 3, 'd');
+	
 
 
 

@@ -15,8 +15,6 @@ $A=LU\Rightarrow A^{-1}=U^{-1}L^{-1}$
 
 其中L为下三角矩阵，U为上三角矩阵
 
-
-
 ## 3.SVD分解(奇异值分解)
 
 $A=UWV^T\Rightarrow A^{-1}=VW^{-1}U^T$

@@ -391,7 +391,7 @@ extern void CmatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row
 }
 
 /**
- * @brief 矩阵原地转置.
+ * @brief 矩阵原地转置并返回.
  *
  * @param matrix 待转置矩阵
  * @param row 矩阵行数
@@ -400,6 +400,23 @@ extern void CmatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row
  */
 extern void CmatrixT_Situ(double* matrix, int row, int col) {
 	//TODO TODO
+	int nextNode, i;
+	double temp;
+	for (i = 0; i < row*col; i++){
+		nextNode = (i % col) * row + (i / col);
+		while (i<nextNode) {
+			nextNode = (nextNode % col) * row + (nextNode / col);
+		}
+		if (i==nextNode){
+			nextNode = (i % col) * row + (i / col);
+			while (nextNode!=i){
+				temp = matrix[i];
+				matrix[i] = matrix[nextNode];
+				matrix[nextNode] = temp;
+				nextNode = (nextNode % col) * row + (nextNode / col);
+			}
+		}
+	}
 	return 0;
 }
 
