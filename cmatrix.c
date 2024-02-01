@@ -445,33 +445,73 @@ extern void CmatrixBlockFill(double* destMat, int destRow, int destCol, const do
 /* LU decomposition ----------------------------------------------------------*/
 static int ludcmp(double* A, int n, int* indx, double* d)
 {
-	double big, s, tmp, * vv = CMatrixd(n, 1);
+	double big;	//临时存储最大值
+	double s;	//存储中间计算结果
+	double tmp;	//临时变量
+	double *vv = CMatrixd(n, 1); //辅助向量，存储每一行的缩放因子
 	int i, imax = 0, j, k;
 
-	*d = 1.0;
+	*d = 1.0;	// 初始化行列式的值为0
+	
+	//计算每一行的缩放因子，用于部分主元消去
 	for (i = 0; i < n; i++) {
-		big = 0.0; for (j = 0; j < n; j++) if ((tmp = fabs(A[i + j * n])) > big) big = tmp;
-		if (big > 0.0) vv[i] = 1.0 / big; else { free(vv); return -1; }
+		big = 0.0; 
+		//找到每行最大的元素
+		for (j = 0; j < n; j++) {
+			if ((tmp = fabs(A[i * n + j])) > big) { //!由行优先存储改为了列优先存储
+				big = tmp;
+			}
+		}
+
+		if (big > 0.0) {
+			vv[i] = 1.0 / big;	// 每行最大值的倒数作为缩放因子
+		}
+		else { // 如果当前行的所有元素都为0，说明矩阵是奇异的，无法进行LU分解
+			free(vv); 
+			return -1; 
+		}
 	}
-	for (j = 0; j < n; j++) {
-		for (i = 0; i < j; i++) {
-			s = A[i + j * n]; for (k = 0; k < i; k++) s -= A[i + k * n] * A[k + j * n]; A[i + j * n] = s;
+	//LU分解主循环
+	for (i = 0; i < n; i++) {
+		// 消去对角线以下元素
+		// 遍历对角线以下每一行，对该行的每个元素进行高斯消元，将其变为0
+		for (j = 0; j < i; j++) {
+			s = A[j + i * n]; 
+			for (k = 0; k < j; k++) {
+				s -= A[j + k * n] * A[k + i * n];
+			}
+			A[j + i * n] = s;
 		}
 		big = 0.0;
-		for (i = j; i < n; i++) {
-			s = A[i + j * n]; for (k = 0; k < j; k++) s -= A[i + k * n] * A[k + j * n]; A[i + j * n] = s;
-			if ((tmp = vv[i] * fabs(s)) >= big) { big = tmp; imax = i; }
-		}
-		if (j != imax) {
-			for (k = 0; k < n; k++) {
-				tmp = A[imax + k * n]; A[imax + k * n] = A[j + k * n]; A[j + k * n] = tmp;
+		for (j = i; j < n; j++) {
+			s = A[j + i * n]; 
+			for (k = 0; k < i; k++) {
+				s -= A[j + k * n] * A[k + i * n];
 			}
-			*d = -(*d); vv[imax] = vv[j];
+			A[j + i * n] = s;
+			if ((tmp = vv[j] * fabs(s)) >= big) 
+			{ 
+				big = tmp; imax = j; 
+			}
 		}
-		indx[j] = imax;
-		if (A[j + j * n] == 0.0) { free(vv); return -1; }
-		if (j != n - 1) {
-			tmp = 1.0 / A[j + j * n]; for (i = j + 1; i < n; i++) A[i + j * n] *= tmp;
+		if (i != imax) {
+			for (k = 0; k < n; k++) {
+				tmp = A[imax + k * n]; 
+				A[imax + k * n] = A[i + k * n]; 
+				A[i + k * n] = tmp;
+			}
+			*d = -(*d); vv[imax] = vv[i];
+		}
+		indx[i] = imax;
+		if (A[i + i * n] == 0.0) { 
+			free(vv); 
+			return -1; 
+		}
+		if (i != n - 1) {
+			tmp = 1.0 / A[i + i * n]; 
+			for (j = i + 1; j < n; j++) {
+				A[j + i * n] *= tmp;
+			}
 		}
 	}
 	free(vv);
@@ -492,7 +532,12 @@ static void lubksb(const double* A, int n, const int* indx, double* b)
 		s = b[i]; for (j = i + 1; j < n; j++) s -= A[i + j * n] * b[j]; b[i] = s / A[i + i * n];
 	}
 }
-/* inverse of matrix ---------------------------------------------------------*/
+/* inverse of matrix ---------------------------------------------------------*
+*inverse of matrix(A = A ^ -1)
+* args   : double* A        IO  matrix(n x n)
+* int    n         I   size of matrix A
+* return : status(0:ok, 0 > :error)
+* ---------------------------------------------------------------------------- - */
 extern int matinv(double* A, int n)
 {
 	double d, * B;
