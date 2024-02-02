@@ -471,52 +471,32 @@ static int ludcmp(double* A, int n, int* indx, double* d)
 			return -1; 
 		}
 	}
-	//LU分解主循环
-	for (i = 0; i < n; i++) {
-		// 消去对角线以下元素
-		// 遍历对角线以下每一行，对该行的每个元素进行高斯消元，将其变为0
-		for (j = 0; j < i; j++) {
-			s = A[j + i * n]; 
-			for (k = 0; k < j; k++) {
-				s -= A[j + k * n] * A[k + i * n];
-			}
-			A[j + i * n] = s;
+	//LU分解主循环,按列进行遍历
+	for (j = 0; j < n; j++) {
+		for (i = 0; i < j; i++) {
+			s = A[i + j * n]; for (k = 0; k < i; k++) s -= A[i + k * n] * A[k + j * n]; A[i + j * n] = s;
 		}
 		big = 0.0;
-		for (j = i; j < n; j++) {
-			s = A[j + i * n]; 
-			for (k = 0; k < i; k++) {
-				s -= A[j + k * n] * A[k + i * n];
-			}
-			A[j + i * n] = s;
-			if ((tmp = vv[j] * fabs(s)) >= big) 
-			{ 
-				big = tmp; imax = j; 
-			}
+		for (i = j; i < n; i++) {
+			s = A[i + j * n]; for (k = 0; k < j; k++) s -= A[i + k * n] * A[k + j * n]; A[i + j * n] = s;
+			if ((tmp = vv[i] * fabs(s)) >= big) { big = tmp; imax = i; }
 		}
-		if (i != imax) {
+		if (j != imax) {
 			for (k = 0; k < n; k++) {
-				tmp = A[imax + k * n]; 
-				A[imax + k * n] = A[i + k * n]; 
-				A[i + k * n] = tmp;
+				tmp = A[imax + k * n]; A[imax + k * n] = A[j + k * n]; A[j + k * n] = tmp;
 			}
-			*d = -(*d); vv[imax] = vv[i];
+			*d = -(*d); vv[imax] = vv[j];
 		}
-		indx[i] = imax;
-		if (A[i + i * n] == 0.0) { 
-			free(vv); 
-			return -1; 
-		}
-		if (i != n - 1) {
-			tmp = 1.0 / A[i + i * n]; 
-			for (j = i + 1; j < n; j++) {
-				A[j + i * n] *= tmp;
-			}
+		indx[j] = imax;
+		if (A[j + j * n] == 0.0) { free(vv); return -1; }
+		if (j != n - 1) {
+			tmp = 1.0 / A[j + j * n]; for (i = j + 1; i < n; i++) A[i + j * n] *= tmp;
 		}
 	}
 	free(vv);
 	return 0;
 }
+
 /* LU back-substitution ------------------------------------------------------*/
 static void lubksb(const double* A, int n, const int* indx, double* b)
 {
@@ -553,3 +533,13 @@ extern int matinv(double* A, int n)
 	free(indx); free(B);
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
