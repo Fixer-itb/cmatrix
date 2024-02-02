@@ -471,26 +471,53 @@ static int ludcmp(double* A, int n, int* indx, double* d)
 			return -1; 
 		}
 	}
-	//LU分解主循环,按列进行遍历
+	//LU分解主循环,按列进行遍历，并消元，将矩阵A分解成上三角矩阵U和下三角矩阵L
+
+	//遍历所有列
 	for (j = 0; j < n; j++) {
+		//遍历当前列j的上三角部分，执行高斯消元，将对角线以下元素置零
+		//由于RTKlib是用的列优先存储，因此此时遍历上三角，按照书上的写法实际上是下三角
 		for (i = 0; i < j; i++) {
-			s = A[i + j * n]; for (k = 0; k < i; k++) s -= A[i + k * n] * A[k + j * n]; A[i + j * n] = s;
+			s = A[i + j * n]; 
+			for (k = 0; k < i; k++) 
+				s -= A[i + k * n] * A[k + j * n]; 
+			A[i + j * n] = s;
 		}
+		//遍历当前列j的下三角部分，执行高斯消元，将对角线以上元素置零
+		//找到当前列中绝对值最大的元素，并记录其行索引 imax。
 		big = 0.0;
 		for (i = j; i < n; i++) {
-			s = A[i + j * n]; for (k = 0; k < j; k++) s -= A[i + k * n] * A[k + j * n]; A[i + j * n] = s;
-			if ((tmp = vv[i] * fabs(s)) >= big) { big = tmp; imax = i; }
+			s = A[i + j * n]; 
+			for (k = 0; k < j; k++) 
+				s -= A[i + k * n] * A[k + j * n]; 
+			A[i + j * n] = s;
+			if ((tmp = vv[i] * fabs(s)) >= big) { 
+				big = tmp; 
+				imax = i; 
+			}
 		}
+		//如果找到的最大元素的行索引 imax 不等于当前列索引 j，则进行行交换。
+		//行交换会改变矩阵的行列式的符号，因此更新行列式的值* d。
+		//同时，更新缩放因子向量，确保正确的缩放因子与主元对应。
 		if (j != imax) {
 			for (k = 0; k < n; k++) {
 				tmp = A[imax + k * n]; A[imax + k * n] = A[j + k * n]; A[j + k * n] = tmp;
 			}
-			*d = -(*d); vv[imax] = vv[j];
+			*d = -(*d); 
+			vv[imax] = vv[j];
 		}
 		indx[j] = imax;
-		if (A[j + j * n] == 0.0) { free(vv); return -1; }
+		if (A[j + j * n] == 0.0) { 
+			free(vv); 
+			return -1; 
+		}
+		//记录主元的行索引 imax，这在后续的计算中会用到。
+		//检查对角元素是否为零，如果是，LU分解失败，释放缩放因子向量的内存，返回 - 1表示失败。
+		//如果当前处理的不是最后一列，对主元以下的列进行归一化。
 		if (j != n - 1) {
-			tmp = 1.0 / A[j + j * n]; for (i = j + 1; i < n; i++) A[i + j * n] *= tmp;
+			tmp = 1.0 / A[j + j * n]; 
+			for (i = j + 1; i < n; i++) 
+				A[i + j * n] *= tmp;
 		}
 	}
 	free(vv);
@@ -504,12 +531,25 @@ static void lubksb(const double* A, int n, const int* indx, double* b)
 	int i, ii = -1, ip, j;
 
 	for (i = 0; i < n; i++) {
-		ip = indx[i]; s = b[ip]; b[ip] = b[i];
-		if (ii >= 0) for (j = ii; j < i; j++) s -= A[i + j * n] * b[j]; else if (s) ii = i;
+		ip = indx[i]; 
+		s = b[ip]; 
+		b[ip] = b[i];
+		if (ii >= 0) {
+			for (j = ii; j < i; j++) {
+				s -= A[j + i * n] * b[j];
+			}
+		}
+		else if (s) {
+			ii = i;
+		}
 		b[i] = s;
 	}
 	for (i = n - 1; i >= 0; i--) {
-		s = b[i]; for (j = i + 1; j < n; j++) s -= A[i + j * n] * b[j]; b[i] = s / A[i + i * n];
+		s = b[i]; 
+		for (j = i + 1; j < n; j++) {
+			s -= A[i + j * n] * b[j];
+			b[i] = s / A[i + i * n];
+		}
 	}
 }
 /* inverse of matrix ---------------------------------------------------------*
