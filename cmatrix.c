@@ -402,14 +402,14 @@ extern void CmatrixT_Situ(double* matrix, int row, int col) {
 	//TODO TODO
 	int nextNode, i;
 	double temp;
-	for (i = 0; i < row*col; i++){
+	for (i = 0; i < row * col; i++) {
 		nextNode = (i % col) * row + (i / col);
-		while (i<nextNode) {
+		while (i < nextNode) {
 			nextNode = (nextNode % col) * row + (nextNode / col);
 		}
-		if (i==nextNode){
+		if (i == nextNode) {
 			nextNode = (i % col) * row + (i / col);
-			while (nextNode!=i){
+			while (nextNode != i) {
 				temp = matrix[i];
 				matrix[i] = matrix[nextNode];
 				matrix[nextNode] = temp;
@@ -442,87 +442,98 @@ extern void CmatrixBlockFill(double* destMat, int destRow, int destCol, const do
 }
 
 
-/* LU decomposition ----------------------------------------------------------*/
-static int ludcmp(double* A, int n, int* indx, double* d)
+/* LU分解（LU decomposition） ----------------------------------------------------------*/
+/**
+ * @brief 方阵的LU分解，.
+ *
+ * @param A IO 方阵输入输出，通过替换A中的元素实现原地变换，其中A的下三角为变换后的L矩阵，上三角为变换后的U矩阵。
+ * @param order 方阵的阶数
+ * @param indx
+ * @param d
+ * @return
+ */
+static int ludcmp(double* MatIO, int order, int* indx, double* d)
 {
-	double big;	//临时存储最大值
-	double s;	//存储中间计算结果
-	double tmp;	//临时变量
-	double *vv = CMatrixd(n, 1); //辅助向量，存储每一行的缩放因子
+	double big, s, tmp, * vv = CMatrixd(1, order);
 	int i, imax = 0, j, k;
 
-	*d = 1.0;	// 初始化行列式的值为0
-	
-	//计算每一行的缩放因子，用于部分主元消去
-	for (i = 0; i < n; i++) {
-		big = 0.0; 
-		//找到每行最大的元素
-		for (j = 0; j < n; j++) {
-			if ((tmp = fabs(A[i * n + j])) > big) { //!由行优先存储改为了列优先存储
-				big = tmp;
-			}
-		}
-
-		if (big > 0.0) {
-			vv[i] = 1.0 / big;	// 每行最大值的倒数作为缩放因子
-		}
-		else { // 如果当前行的所有元素都为0，说明矩阵是奇异的，无法进行LU分解
-			free(vv); 
-			return -1; 
-		}
-	}
-	//LU分解主循环,按列进行遍历，并消元，将矩阵A分解成上三角矩阵U和下三角矩阵L
-
-	//遍历所有列
-	for (j = 0; j < n; j++) {
-		//遍历当前列j的上三角部分，执行高斯消元，将对角线以下元素置零
-		//由于RTKlib是用的列优先存储，因此此时遍历上三角，按照书上的写法实际上是下三角
-		for (i = 0; i < j; i++) {
-			s = A[i + j * n]; 
-			for (k = 0; k < i; k++) 
-				s -= A[i + k * n] * A[k + j * n]; 
-			A[i + j * n] = s;
-		}
-		//遍历当前列j的下三角部分，执行高斯消元，将对角线以上元素置零
-		//找到当前列中绝对值最大的元素，并记录其行索引 imax。
+	*d = 1.0;
+	/*隐式主元选取：找到每行的缩放因子
+	* 缩放因子是每列中绝对值最大的倒数
+	* 所以每行的最大值在隐式缩放后值为1，更容易相互比较	*/
+	for (i = 0; i < order; i++) {
 		big = 0.0;
-		for (i = j; i < n; i++) {
-			s = A[i + j * n]; 
-			for (k = 0; k < j; k++) 
-				s -= A[i + k * n] * A[k + j * n]; 
-			A[i + j * n] = s;
-			if ((tmp = vv[i] * fabs(s)) >= big) { 
-				big = tmp; 
-				imax = i; 
+		for (j = 0; j < order; j++)
+			if ((tmp = fabs(MatIO[i * order + j])) > big) //找到绝对值最大元素
+				big = tmp;
+		if (big == 0.0) {
+			printf("至少存在一行所有元素为0\n");
+			free(vv);
+			return -1;
+		}
+		vv[i] = 1.0 / big; //最大值取倒数作为缩放因子
+	}
+	/*按列遍历
+	* L的下三角部分和U的上三角部分都保存在MatIO中
+	* 即通过替换MatIO中的元素实现	*/
+	for (j = 0; j < order; j++) {
+		/*求解U中第j列的元素
+		* U：仅需要上三角矩阵，即i<j
+		* 注意：主元MatIO[j,j]将在后面计算	*/
+		for (i = 0; i < j; i++) {
+			s = MatIO[i * order + j]; //方程中的第一项
+			for (k = 0; k < i; k++)
+				s -= MatIO[i * order + k] * MatIO[k * order + j]; //减去第二项 
+			MatIO[i * order + j] = s; //替换A中的元素
+		}
+		// 求解矩阵L中的第j列元素
+		//仅需要下三角矩阵，即i>=j
+		big = 0.0;
+		for (i = j; i < order; i++) {
+			/*1.求解元素 (与求解U中的元素相同)
+			* 注意，此处仅计算方程的分子部分*/
+			s = MatIO[i * order + j];
+			for (k = 0; k < j; k++)
+				s -= MatIO[i * order + k] * MatIO[k * order + j];
+			MatIO[i * order + j] = s;
+
+			/*记录列中最大元素及其索引
+			* 注意，在比较前对元素进行了缩放（隐式主元选取）*/
+			if ((tmp = vv[i] * fabs(s)) >= big) {
+				big = tmp;
+				imax = i;
 			}
 		}
-		//如果找到的最大元素的行索引 imax 不等于当前列索引 j，则进行行交换。
-		//行交换会改变矩阵的行列式的符号，因此更新行列式的值* d。
-		//同时，更新缩放因子向量，确保正确的缩放因子与主元对应。
+		/*部分主元选取：交换行，使对角元素为列中最大元素
+		* 如果当前主元已经是列中最大元素，则跳过 */
 		if (j != imax) {
-			for (k = 0; k < n; k++) {
-				tmp = A[imax + k * n]; A[imax + k * n] = A[j + k * n]; A[j + k * n] = tmp;
+			for (k = 0; k < order; k++) {
+				tmp = MatIO[imax * order + k];
+				MatIO[imax * order + k] = MatIO[j * order + k];
+				MatIO[j * order + k] = tmp;
 			}
-			*d = -(*d); 
+			*d = -(*d);
 			vv[imax] = vv[j];
 		}
+		//记录部分主元选取影响的行在向量索引中
 		indx[j] = imax;
-		if (A[j + j * n] == 0.0) { 
-			free(vv); 
-			return -1; 
+		//处理奇异矩阵
+		/*完成解决L中的元素：除以主元（方程的分母部分）
+		* 对于j=n跳过，因为在最后一行不需要解决L中的元素*/
+		if (MatIO[j + j * order] == 0.0) {
+			free(vv);
+			return -1;
 		}
-		//记录主元的行索引 imax，这在后续的计算中会用到。
-		//检查对角元素是否为零，如果是，LU分解失败，释放缩放因子向量的内存，返回 - 1表示失败。
-		//如果当前处理的不是最后一列，对主元以下的列进行归一化。
-		if (j != n - 1) {
-			tmp = 1.0 / A[j + j * n]; 
-			for (i = j + 1; i < n; i++) 
-				A[i + j * n] *= tmp;
+		if (j != order - 1) {
+			tmp = 1.0 / MatIO[j + j * order];
+			for (i = j + 1; i < order; i++)
+				MatIO[i * order + j] *= tmp;
 		}
 	}
 	free(vv);
-	return 0;
+	return 1;
 }
+
 
 /* LU back-substitution ------------------------------------------------------*/
 static void lubksb(const double* A, int n, const int* indx, double* b)
@@ -531,49 +542,52 @@ static void lubksb(const double* A, int n, const int* indx, double* b)
 	int i, ii = -1, ip, j;
 
 	for (i = 0; i < n; i++) {
-		ip = indx[i]; 
-		s = b[ip]; 
+		ip = indx[i];
+		s = b[ip];
 		b[ip] = b[i];
-		if (ii >= 0) {
-			for (j = ii; j < i; j++) {
-				s -= A[j + i * n] * b[j];
-			}
-		}
-		else if (s) {
+		if (ii >= 0)
+			for (j = ii; j < i; j++)
+				s -= A[i * n + j] * b[j];
+		else if (s)
 			ii = i;
-		}
 		b[i] = s;
 	}
 	for (i = n - 1; i >= 0; i--) {
-		s = b[i]; 
-		for (j = i + 1; j < n; j++) {
-			s -= A[i + j * n] * b[j];
-			b[i] = s / A[i + i * n];
-		}
+		s = b[i];
+		for (j = i + 1; j < n; j++)
+			s -= A[i * n + j] * b[j];
+		b[i] = s / A[i + i * n];
 	}
 }
+
 /* inverse of matrix ---------------------------------------------------------*
 *inverse of matrix(A = A ^ -1)
 * args   : double* A        IO  matrix(n x n)
 * int    n         I   size of matrix A
 * return : status(0:ok, 0 > :error)
 * ---------------------------------------------------------------------------- - */
-extern int matinv(double* A, int n)
-{
-	double d, * B;
+int matinv(double* C, int n, double* A) {
+
+	double d, * col;
 	int i, j, * indx;
 
-	indx = CMatrixi(n, 1); B = CMatrixd(n, n); CmatrixCopy(B, A, n, n,'d');
-	if (ludcmp(B, n, indx, &d)) { free(indx); free(B); return -1; }
-	for (j = 0; j < n; j++) {
-		for (i = 0; i < n; i++) A[i + j * n] = 0.0;
-		A[j + j * n] = 1.0;
-		lubksb(B, n, indx, A + j * n);
-	}
-	free(indx); free(B);
-	return 0;
-}
+	col = CMatrixd(1, n);
+	indx = CMatrixi(1, n);
 
+	if (!ludcmp(A, n, indx, &d)) { free(indx); free(col); printf("LU分解失败\n"); return -1; }; //Decompose the matrix just once.
+	//CmatrixShow(A, n, n, 'd');
+	for (j = 0; j < n; j++) {           // Find inverse by columns.
+		for (i = 0; i < n; i++) col[i] = 0.0;
+		col[j] = 1.0;
+		lubksb(A, n, indx, col);
+		for (i = 0; i < n; i++) C[i * n + j] = col[i];
+	}
+	free(col);
+	free(indx);
+
+
+	return(0);
+}
 
 
 
