@@ -444,20 +444,21 @@ extern void CmatrixBlockFill(double* destMat, int destRow, int destCol, const do
 
 /* LU分解（LU decomposition） ----------------------------------------------------------*/
 /**
- * @brief 方阵的LU分解，.
+ * @brief 方阵的LU分解（LU decomposition）.
  *
  * @param A IO 方阵输入输出，通过替换A中的元素实现原地变换，其中A的下三角为变换后的L矩阵，上三角为变换后的U矩阵。
- * @param order 方阵的阶数
- * @param indx
- * @param d
- * @return
+ * @param order I 方阵的阶数
+ * @param index 记录因高斯消去部分主元法改变的行排列次序
+ * @param positivity O 地址传递参数，值为±1，表示因行交换次数的奇偶，* d用来使行列式变号。
+ * @return 成功 1，失败 -1
  */
-static int ludcmp(double* MatIO, int order, int* indx, double* d)
+static int CmatrixLUdcmp(double* MatIO, int order, int* index, double* positivity)
 {
-	double big, s, tmp, * vv = CMatrixd(1, order);
+	double big, s, tmp;
 	int i, imax = 0, j, k;
+	double* sf = CMatrixd(1, order);//保存每行的比例因子scale factor
 
-	*d = 1.0;
+	*positivity = 1.0; //d用来计算行列式，每当矩阵换行，对应行列式取负号。
 	/*隐式主元选取：找到每行的缩放因子
 	* 缩放因子是每列中绝对值最大的倒数
 	* 所以每行的最大值在隐式缩放后值为1，更容易相互比较	*/
@@ -468,10 +469,10 @@ static int ludcmp(double* MatIO, int order, int* indx, double* d)
 				big = tmp;
 		if (big == 0.0) {
 			printf("至少存在一行所有元素为0\n");
-			free(vv);
+			free(sf);
 			return -1;
 		}
-		vv[i] = 1.0 / big; //最大值取倒数作为缩放因子
+		sf[i] = 1.0 / big; //最大值取倒数作为缩放因子
 	}
 	/*按列遍历
 	* L的下三角部分和U的上三角部分都保存在MatIO中
@@ -499,7 +500,7 @@ static int ludcmp(double* MatIO, int order, int* indx, double* d)
 
 			/*记录列中最大元素及其索引
 			* 注意，在比较前对元素进行了缩放（隐式主元选取）*/
-			if ((tmp = vv[i] * fabs(s)) >= big) {
+			if ((tmp = sf[i] * fabs(s)) >= big) {
 				big = tmp;
 				imax = i;
 			}
@@ -512,16 +513,16 @@ static int ludcmp(double* MatIO, int order, int* indx, double* d)
 				MatIO[imax * order + k] = MatIO[j * order + k];
 				MatIO[j * order + k] = tmp;
 			}
-			*d = -(*d);
-			vv[imax] = vv[j];
+			*positivity = -(*positivity);
+			sf[imax] = sf[j];
 		}
 		//记录部分主元选取影响的行在向量索引中
-		indx[j] = imax;
+		index[j] = imax;
 		//处理奇异矩阵
 		/*完成解决L中的元素：除以主元（方程的分母部分）
 		* 对于j=n跳过，因为在最后一行不需要解决L中的元素*/
 		if (MatIO[j + j * order] == 0.0) {
-			free(vv);
+			free(sf);
 			return -1;
 		}
 		if (j != order - 1) {
@@ -530,13 +531,25 @@ static int ludcmp(double* MatIO, int order, int* indx, double* d)
 				MatIO[i * order + j] *= tmp;
 		}
 	}
-	free(vv);
+	free(sf);
 	return 1;
 }
 
 
 /* LU back-substitution ------------------------------------------------------*/
-static void lubksb(const double* A, int n, const int* indx, double* b)
+// 使用回代法的LU求解器，解Ax = b
+// 输入矩阵A应为其LU分解（来自ludcmp）
+// 输入向量index存储所有主元的（行）位置（来自ludcmp）
+// 输出：b中的x的解
+/**
+ * @brief .
+ * 
+ * @param coefMat I 系数矩阵
+ * @param n
+ * @param index
+ * @param b
+ */
+static void CmatrixLUbksb(const double*coefMat , int n, const int* index, double* b)
 {
 	double s;
 	int i, ii = -1, ip, j;
@@ -566,7 +579,7 @@ static void lubksb(const double* A, int n, const int* indx, double* b)
 * int    n         I   size of matrix A
 * return : status(0:ok, 0 > :error)
 * ---------------------------------------------------------------------------- - */
-int matinv(double* C, int n, double* A) {
+int CmatrixInv(double* C, int n, double* A) {
 
 	double d, * col;
 	int i, j, * indx;
@@ -574,12 +587,12 @@ int matinv(double* C, int n, double* A) {
 	col = CMatrixd(1, n);
 	indx = CMatrixi(1, n);
 
-	if (!ludcmp(A, n, indx, &d)) { free(indx); free(col); printf("LU分解失败\n"); return -1; }; //Decompose the matrix just once.
+	if (!CmatrixLUdcmp(A, n, indx, &d)) { free(indx); free(col); printf("LU分解失败\n"); return -1; }; //Decompose the matrix just once.
 	//CmatrixShow(A, n, n, 'd');
 	for (j = 0; j < n; j++) {           // Find inverse by columns.
 		for (i = 0; i < n; i++) col[i] = 0.0;
 		col[j] = 1.0;
-		lubksb(A, n, indx, col);
+		CmatrixLUbksb(A, n, indx, col);
 		for (i = 0; i < n; i++) C[i * n + j] = col[i];
 	}
 	free(col);
