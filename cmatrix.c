@@ -605,7 +605,8 @@ extern int CmatrixInv(const double* MatSrc, int order, double* MatInv) {
 		for (i = 0; i < order; i++) col[i] = 0.0;
 		col[j] = 1.0;
 		CmatrixLUbksb(MatSrc, order, indx, col);
-		for (i = 0; i < order; i++) MatInv[i * order + j] = col[i];
+		for (i = 0; i < order; i++) 
+			MatInv[i * order + j] = col[i];
 	}
 	free(col);
 	free(indx);
