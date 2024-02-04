@@ -536,64 +536,76 @@ static int CmatrixLUdcmp(double* MatIO, int order, int* index, double* positivit
 }
 
 
-/* LU back-substitution ------------------------------------------------------*/
-// 使用回代法的LU求解器，解Ax = b
-// 输入矩阵A应为其LU分解（来自ludcmp）
-// 输入向量index存储所有主元的（行）位置（来自ludcmp）
-// 输出：b中的x的解
 /**
- * @brief .
+ * @brief 使用回代法的LU求解器(LU back-substitution)，解coefMat x = constVec.
  * 
  * @param coefMat I 系数矩阵
- * @param n
- * @param index
- * @param b
+ * @param n I 系数矩阵的阶
+ * @param index I 为LU分解函数 CmatrixLUdcmp() 记录行排列顺序的向量
+ * @param constSolVec IO 输入时 为线性方程组的常数向量(constant vector)，
+ *					  输出时 为线性方程组的解(solution vector)
  */
-static void CmatrixLUbksb(const double*coefMat , int n, const int* index, double* b)
+static void CmatrixLUbksb(const double*coefMat , const int order, const int* index, double* constSolVec)
 {
+	
+	int i;
+	int ii = -1;
+	int i_pivot; //主元的索引
+	int j;
 	double s;
-	int i, ii = -1, ip, j;
 
-	for (i = 0; i < n; i++) {
-		ip = indx[i];
-		s = b[ip];
-		b[ip] = b[i];
+	//首先，使用前向代入法解Ly = b
+	for (i = 0; i < order; i++) {
+		i_pivot = index[i];
+		// 方程的第一项
+		s = constSolVec[i_pivot];
+		constSolVec[i_pivot] = constSolVec[i];
+		// 方程的求和部分（第二项）
+		// 对于i=1跳过，因为第一行不需要解决
+		// 对于前几个连续的b[i]=0的行，也可以跳过，因为求和也将为零
 		if (ii >= 0)
 			for (j = ii; j < i; j++)
-				s -= A[i * n + j] * b[j];
+				s -= coefMat[i * order + j] * constSolVec[j];
 		else if (s)
 			ii = i;
-		b[i] = s;
+		constSolVec[i] = s;
 	}
-	for (i = n - 1; i >= 0; i--) {
-		s = b[i];
-		for (j = i + 1; j < n; j++)
-			s -= A[i * n + j] * b[j];
-		b[i] = s / A[i + i * n];
+	// 其次，使用回代法解Ux = y
+	for (i = order - 1; i >= 0; i--) {
+		// 方程的第一项
+		s = constSolVec[i];
+		// 方程的第二项
+		for (j = i + 1; j < order; j++)
+			s -= coefMat[i * order + j] * constSolVec[j];
+		// 除以分母
+		constSolVec[i] = s / coefMat[i + i * order];
 	}
 }
 
-/* inverse of matrix ---------------------------------------------------------*
-*inverse of matrix(A = A ^ -1)
-* args   : double* A        IO  matrix(n x n)
-* int    n         I   size of matrix A
-* return : status(0:ok, 0 > :error)
-* ---------------------------------------------------------------------------- - */
-int CmatrixInv(double* C, int n, double* A) {
+/**
+ * @brief 通过LU分解实现矩阵求逆 Mat = LU.MatInv = U-1*L-1
+ * 
+ * @param MatSrc I 源矩阵
+ * @param order
+ * @param MatInv
+ * @return 
+ */
+extern int CmatrixInv(const double* MatSrc, int order, double* MatInv) {
 
-	double d, * col;
+	double positivity;//因LU分解行变换，导致行列式正负的影响
+	double * col;
 	int i, j, * indx;
 
-	col = CMatrixd(1, n);
-	indx = CMatrixi(1, n);
+	col = CMatrixd(1, order);
+	indx = CMatrixi(1, order);
 
-	if (!CmatrixLUdcmp(A, n, indx, &d)) { free(indx); free(col); printf("LU分解失败\n"); return -1; }; //Decompose the matrix just once.
+	if (!CmatrixLUdcmp(MatSrc, order, indx, &positivity)) { free(indx); free(col); printf("LU分解失败\n"); return -1; }; //Decompose the matrix just once.
 	//CmatrixShow(A, n, n, 'd');
-	for (j = 0; j < n; j++) {           // Find inverse by columns.
-		for (i = 0; i < n; i++) col[i] = 0.0;
+	for (j = 0; j < order; j++) {           // Find inverse by columns.
+		for (i = 0; i < order; i++) col[i] = 0.0;
 		col[j] = 1.0;
-		CmatrixLUbksb(A, n, indx, col);
-		for (i = 0; i < n; i++) C[i * n + j] = col[i];
+		CmatrixLUbksb(MatSrc, order, indx, col);
+		for (i = 0; i < order; i++) MatInv[i * order + j] = col[i];
 	}
 	free(col);
 	free(indx);

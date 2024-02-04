@@ -29,5 +29,5 @@ extern void CmatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row
 extern void CmatrixT_Situ(double* matrix, int row, int column);
 extern void CmatrixBlockFill(double* destMat, int destRow, int destCol, const double* blockMat, int blockRow, int blockCol, int fillLocRow, int fillLocCol);
 
-extern int matinv(double* A, int n);
+extern int CmatrixInv(const double* MatSrc, int order, double* MatInv);
 #endif // !__CMATRIX_H__
