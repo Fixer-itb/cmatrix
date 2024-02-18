@@ -27,6 +27,10 @@ int main() {
 	CMatrixShow(vec1, 3, 1, 'd');
 	CMatrixShow(vec1, 3, 1, 'd');
 
+/*****根据向量生成对角矩阵测试*****/
+	double vec_diag[5] = { 1,2,3,4,5 };
+	double* MatDiag = CMatrix_asDiagonal(&vec_diag, 5);
+	CMatrixShow(MatDiag, 5, 5, 'd');
 
 
 /*****矩阵乘法测试*****/
@@ -134,6 +138,7 @@ int main() {
 	/*可逆矩阵替换源矩阵*/
 	CMatrixInv(matInv, 15);
 	CMatrixShow(matInv, 15, 15, 'd');
+
 
 
 

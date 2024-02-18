@@ -24,6 +24,7 @@ extern void CVectorNormalizei(const int* vec, int* vecnormalized, int dimension)
 extern void CVector3dCrossd(const double* vecl, const double* vecr, double* result);
 extern void CVector3dCrossf(const float* vecl, const float* vecr, float* result);
 extern void CVector3dCrossi(const int* vecl, const int* vecr, int* result);
+extern double* CMatrix_asDiagonal(const double* vec, const int order);
 extern void CMatrixMul(const char* tr, int rowL, int midLR, int columnR, double alpha, const double* matl, const double* matr, double beta, double* C);
 extern void CMatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row, int matrixT_column, char type);
 extern void CMatrixT_Situ(double* matrix, int row, int column);

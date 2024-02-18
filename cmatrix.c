@@ -298,6 +298,26 @@ extern void CVectorNormalizei(const int* vec, int* vecnormalized, int dimension)
 	while (--tempdim >= 0)	vecnormalized[tempdim] = vec[tempdim] / sqrt(result);
 }
 
+
+/**
+ * @brief 根据order长度的向量生成order阶的对角矩阵.
+ * 
+ * @param vec I 输入向量
+ * @param order I 向量长度=矩阵阶数
+ * @return 生成的对角矩阵
+ */
+extern double* CMatrix_asDiagonal(const double* vec, const int order) {
+	int i;
+	double* p;
+	p = CMatrixZerosd(order, order);
+
+	for (i = 0; i < order; i++) {
+		p[i * order + i] = vec[i];
+	}
+	return p;
+}
+
+
 /**
  * @brief 矩阵乘法计算 result=alpha*MAT_LEFT*MAT_RIGHT+beta*RESULT(if beta != 0.0 & RESULT != NULL).\
  *				   result=alpha*MAT_LEFT*MAT_RIGHT(if beta = 0.0).
@@ -583,16 +603,14 @@ static void CMatrixLUbksb(const double*coefMat , const int order, const int* ind
 }
 
 
-/**
- * @brief 通过LU分解实现矩阵求逆 Mat = LU.MatInv = U-1*L-1。
- * 原矩阵会被破坏,所以本函数没啥鸟用！
- *
- * @param MatSrc I 源矩阵
- * @param order I 矩阵的维度
- * @param MatInv O 源矩阵的逆矩阵
- * @return 1 true; -1 false
- */
-/*
+// *@brief 通过LU分解实现矩阵求逆 Mat = LU.MatInv = U-1*L-1。
+// * 原矩阵会被破坏,所以本函数没啥鸟用！
+// *
+// * @param MatSrc I 源矩阵
+// * @param order I 矩阵的维度
+// * @param MatInv O 源矩阵的逆矩阵
+// * @return 1 true; -1 false
+// */
  //extern int CMatrixInv_New(const double* MatSrc, int order, double* MatInv) {
  //
  //	double positivity;//因LU分解行变换，导致行列式正负的影响
@@ -617,10 +635,6 @@ static void CMatrixLUbksb(const double*coefMat , const int order, const int* ind
  //	free(indx);
  //	return 0;
  //}
- */
-
- 
-
 //TODO降低内存使用量，矩阵求逆使用原地变换，降低内存消耗，希望找一个更好的办法
 //由于rtklib使用的数组是列优先，列方向下标递增，解得方程组的解可以直接按列存储，
 //对于行优先还要转置一次，后续待补充
@@ -657,7 +671,7 @@ static void CMatrixLUbksb(const double*coefMat , const int order, const int* ind
   *
   * @param MatSrcInv IO 输入时原矩阵，输出时逆矩阵
   * @param order	I 矩阵维度
-  * @return
+  * @return 1 true；-1 false
   */
 extern int CMatrixInv(const double* MatSrcInv, int order) {
 
