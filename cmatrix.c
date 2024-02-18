@@ -131,7 +131,7 @@ extern int* CMatrixEyei(int rank)
  * @param type  矩阵元素类型
  * @return  打印是否成功
  */
-extern int CmatrixShow(void* matrix, int row, int column, char type) {
+extern int CMatrixShow(void* matrix, int row, int column, char type) {
 
 	if (matrix == NULL) {
 		printf("Invalid matrix pointer\n");
@@ -174,7 +174,7 @@ extern int CmatrixShow(void* matrix, int row, int column, char type) {
  * @param column 矩阵列
  * @param type 矩阵元素类型
  */
-extern void CmatrixCopy(void* matrix_dest, const void* matrix_src, int row, int column, char type) {
+extern void CMatrixCopy(void* matrix_dest, const void* matrix_src, int row, int column, char type) {
 	int elementSize;
 	switch (type) {
 	case 'i':
@@ -201,17 +201,17 @@ extern void CmatrixCopy(void* matrix_dest, const void* matrix_src, int row, int 
  * @param dimension 维数
  * @return 内积的值
  */
-extern double CvectorDotd(const double* vec1, const double* vec2, int dimension) {
+extern double CVectorDotd(const double* vec1, const double* vec2, int dimension) {
 	double result = 0.0;
 	while (--dimension >= 0) result += vec1[dimension] * vec2[dimension];
 	return result;
 }
-extern float CvectorDotf(const float* vec1, const float* vec2, int dimension) {
+extern float CVectorDotf(const float* vec1, const float* vec2, int dimension) {
 	float result = 0.0;
 	while (--dimension >= 0) result += vec1[dimension] * vec2[dimension];
 	return result;
 }
-extern int CvectorDoti(const int* vec1, const int* vec2, int dimension) {
+extern int CVectorDoti(const int* vec1, const int* vec2, int dimension) {
 	int result = 0;
 	while (--dimension >= 0) result += vec1[dimension] * vec2[dimension];
 	return result;
@@ -224,19 +224,19 @@ extern int CvectorDoti(const int* vec1, const int* vec2, int dimension) {
  * @param vecr 右向量
  * @param result 结果
  */
-extern void Cvector3dCrossd(const double* vecl, const double* vecr, double* result)
+extern void CVector3dCrossd(const double* vecl, const double* vecr, double* result)
 {
 	result[0] = vecl[1] * vecr[2] - vecl[2] * vecr[1];
 	result[1] = vecl[2] * vecr[0] - vecl[0] * vecr[2];
 	result[2] = vecl[0] * vecr[1] - vecl[1] * vecr[0];
 }
-extern void Cvector3dCrossf(const float* vecl, const float* vecr, float* result)
+extern void CVector3dCrossf(const float* vecl, const float* vecr, float* result)
 {
 	result[0] = vecl[1] * vecr[2] - vecl[2] * vecr[1];
 	result[1] = vecl[2] * vecr[0] - vecl[0] * vecr[2];
 	result[2] = vecl[0] * vecr[1] - vecl[1] * vecr[0];
 }
-extern void Cvector3dCrossi(const int* vecl, const int* vecr, int* result)
+extern void CVector3dCrossi(const int* vecl, const int* vecr, int* result)
 {
 	result[0] = vecl[1] * vecr[2] - vecl[2] * vecr[1];
 	result[1] = vecl[2] * vecr[0] - vecl[0] * vecr[2];
@@ -250,19 +250,19 @@ extern void Cvector3dCrossi(const int* vecl, const int* vecr, int* result)
  * @param dimension 向量维度
  * @return 模值
  */
-extern double CvectorNormd(const double* vec, int dimension)
+extern double CVectorNormd(const double* vec, int dimension)
 {
 	double result = 0.0;
 	while (--dimension >= 0) result += vec[dimension] * vec[dimension];
 	return sqrt(result);
 }
-extern float CvectorNormf(const float* vec, int dimension)
+extern float CVectorNormf(const float* vec, int dimension)
 {
 	float result = 0.0;
 	while (--dimension >= 0) result += vec[dimension] * vec[dimension];
 	return sqrt(result);
 }
-extern int CvectorNormi(const int* vec, int dimension)
+extern int CVectorNormi(const int* vec, int dimension)
 {
 	int result = 0;
 	while (--dimension >= 0) result += vec[dimension] * vec[dimension];
@@ -276,21 +276,21 @@ extern int CvectorNormi(const int* vec, int dimension)
  * @param vecnormalized 归一化后的向量
  * @param dimension 维度
  */
-extern void CvectorNormalized(const double* vec, double* vecnormalized, int dimension)
+extern void CVectorNormalized(const double* vec, double* vecnormalized, int dimension)
 {
 	double result = 0.0;
 	int tempdim = dimension;
 	while (--dimension >= 0) result += vec[dimension] * vec[dimension];
 	while (--tempdim >= 0)	vecnormalized[tempdim] = vec[tempdim] / sqrt(result);
 }
-extern void CvectorNormalizef(const float* vec, float* vecnormalized, int dimension)
+extern void CVectorNormalizef(const float* vec, float* vecnormalized, int dimension)
 {
 	float result = 0.0;
 	int tempdim = dimension;
 	while (--dimension >= 0) result += vec[dimension] * vec[dimension];
 	while (--tempdim >= 0)	vecnormalized[tempdim] = vec[tempdim] / sqrt(result);
 }
-extern void CvectorNormalizei(const int* vec, int* vecnormalized, int dimension)
+extern void CVectorNormalizei(const int* vec, int* vecnormalized, int dimension)
 {
 	int result = 0;
 	int tempdim = dimension;
@@ -312,7 +312,7 @@ extern void CvectorNormalizei(const int* vec, int* vecnormalized, int dimension)
  * @param beta 结果矩阵作为已有矩阵时的系数
  * @param result 计算结果
  */
-extern void CmatrixMul(const char* tr, int rowL, int midLR, int columnR, double alpha, const double* matl, const double* matr, double beta, double* result)
+extern void CMatrixMul(const char* tr, int rowL, int midLR, int columnR, double alpha, const double* matl, const double* matr, double beta, double* result)
 {
 	double temp;
 	int i, j, k, f = tr[0] == 'N' ? (tr[1] == 'N' ? 1 : 2) : (tr[1] == 'N' ? 3 : 4);
@@ -368,7 +368,7 @@ extern void CmatrixMul(const char* tr, int rowL, int midLR, int columnR, double 
  * @param matrixT_column 转置后矩阵的列数
  * @param type 矩阵元素的类型
  */
-extern void CmatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row, int matrixT_column, char type) {
+extern void CMatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row, int matrixT_column, char type) {
 	int i, j;
 	for (i = 0; i < matrixT_row; i++) {
 		for (j = 0; j < matrixT_column; j++) {
@@ -398,7 +398,7 @@ extern void CmatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row
  * @param column 矩阵列数
  * @param type 矩阵元素类型
  */
-extern void CmatrixT_Situ(double* matrix, int row, int col) {
+extern void CMatrixT_Situ(double* matrix, int row, int col) {
 	//TODO TODO
 	int nextNode, i;
 	double temp;
@@ -432,7 +432,7 @@ extern void CmatrixT_Situ(double* matrix, int row, int col) {
  * @param fillLocRow	左上角行数
  * @param fillLocCol	左上角列数
  */
-extern void CmatrixBlockFill(double* destMat, int destRow, int destCol, const double* blockMat, int blockRow, int blockCol, int fillLocRow, int fillLocCol) {
+extern void CMatrixBlockFill(double* destMat, int destRow, int destCol, const double* blockMat, int blockRow, int blockCol, int fillLocRow, int fillLocCol) {
 	int i, j;
 	for (i = fillLocRow; i < fillLocRow + blockRow; i++) {//大矩阵的行，从插入列开始
 		for (j = fillLocCol; j < fillLocCol + blockCol; j++) {//大矩阵的列，从插入列开始
@@ -452,7 +452,7 @@ extern void CmatrixBlockFill(double* destMat, int destRow, int destCol, const do
  * @param positivity O 地址传递参数，值为±1，表示因行交换次数的奇偶，* d用来使行列式变号。
  * @return 成功 1，失败 -1
  */
-static int CmatrixLUdcmp(double* MatIO, int order, int* index, double* positivity)
+static int CMatrixLUdcmp(double* MatIO, int order, int* index, double* positivity)
 {
 	double big, s, tmp;
 	int i, imax = 0, j, k;
@@ -545,7 +545,7 @@ static int CmatrixLUdcmp(double* MatIO, int order, int* index, double* positivit
  * @param constSolVec IO 输入时 为线性方程组的常数向量(constant vector)，
  *					  输出时 为线性方程组的解(solution vector)
  */
-static void CmatrixLUbksb(const double*coefMat , const int order, const int* index, double* constSolVec)
+static void CMatrixLUbksb(const double*coefMat , const int order, const int* index, double* constSolVec)
 {
 	
 	int i;
@@ -590,34 +590,61 @@ static void CmatrixLUbksb(const double*coefMat , const int order, const int* ind
  * @param MatInv
  * @return 
  */
-extern int CmatrixInv(const double* MatSrc, int order, double* MatInv) {
+//extern int CmatrixInv(const double* MatSrc, int order, double* MatInv) {
+//
+//	double positivity;//因LU分解行变换，导致行列式正负的影响
+//	double * col;
+//	int i, j, * index;
+//
+//	col = CMatrixd(1, order);
+//	index = CMatrixi(1, order);
+//
+//	if (!CmatrixLUdcmp(MatSrc, order, index, &positivity)) { free(index); free(col); printf("LU分解失败\n"); return -1; }; //Decompose the matrix just once.
+//	//CmatrixShow(A, n, n, 'd');
+//	for (j = 0; j < order; j++) {           // Find inverse by columns.
+//		for (i = 0; i < order; i++) 
+//			col[i] = 0.0;
+//		col[j] = 1.0;
+//		CmatrixLUbksb(MatSrc, order, index, col);
+//		for (i = 0; i < order; i++) 
+//			MatInv[i * order + j] = col[i];
+//	}
+//	free(col);
+//	free(index);
+//
+//
+//	return 0;
+//}
+
+
+//TODO降低内存使用量，使用原地变换，降低内存消耗
+
+extern int CMatrixInv(double* MatSrc, int order, double* MatInv) {
 
 	double positivity;//因LU分解行变换，导致行列式正负的影响
-	double * col;
-	int i, j, * indx;
+	double* col;
+	int i, j, * index;
 
-	col = CMatrixd(1, order);
-	indx = CMatrixi(1, order);
+	col = CMatrixd(order, order);
+	index = CMatrixi(1, order);
+	CMatrixCopy(col, MatSrc, order, order, 'd');
 
-	if (!CmatrixLUdcmp(MatSrc, order, indx, &positivity)) { free(indx); free(col); printf("LU分解失败\n"); return -1; }; //Decompose the matrix just once.
+	if (!CMatrixLUdcmp(MatSrc, order, index, &positivity)) { free(index); free(col); printf("LU分解失败\n"); return -1; }; //Decompose the matrix just once.
 	//CmatrixShow(A, n, n, 'd');
 	for (j = 0; j < order; j++) {           // Find inverse by columns.
-		for (i = 0; i < order; i++) col[i] = 0.0;
-		col[j] = 1.0;
-		CmatrixLUbksb(MatSrc, order, indx, col);
-		for (i = 0; i < order; i++) 
-			MatInv[i * order + j] = col[i];
+		for (i = 0; i < order; i++)
+			MatSrc[i*order+j] = 0.0;
+		MatSrc[j*order+j] = 1.0;
+		CMatrixLUbksb(col, order, index, MatSrc+j*order);
+		/*for (i = 0; i < order; i++)
+			MatInv[i * order + j] = col[i];*/
 	}
 	free(col);
-	free(indx);
+	free(index);
 
 
-	return(0);
+	return 0;
 }
-
-
-
-
 
 
 
