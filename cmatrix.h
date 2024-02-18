@@ -28,6 +28,7 @@ extern void CMatrixMul(const char* tr, int rowL, int midLR, int columnR, double 
 extern void CMatrixT(void* matrixT_dest, const void* matrix_src, int matrixT_row, int matrixT_column, char type);
 extern void CMatrixT_Situ(double* matrix, int row, int column);
 extern void CMatrixBlockFill(double* destMat, int destRow, int destCol, const double* blockMat, int blockRow, int blockCol, int fillLocRow, int fillLocCol);
-
-extern int CMatrixInv(const double* MatSrc, int order, double* MatInv);
+//extern int CMatrixInv_New(const double* MatSrc, int order, double* MatInv);
+extern int CMatrixInv(const double* MatSrc, int order);
+//extern int CMatrixInv_Situ_test(double* MatSrc, int order);
 #endif // !__CMATRIX_H__

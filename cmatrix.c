@@ -448,11 +448,11 @@ extern void CMatrixBlockFill(double* destMat, int destRow, int destCol, const do
  *
  * @param A IO 方阵输入输出，通过替换A中的元素实现原地变换，其中A的下三角为变换后的L矩阵，上三角为变换后的U矩阵。
  * @param order I 方阵的阶数
- * @param index 记录因高斯消去部分主元法改变的行排列次序
+ * @param indx 记录因高斯消去部分主元法改变的行排列次序
  * @param positivity O 地址传递参数，值为±1，表示因行交换次数的奇偶，* d用来使行列式变号。
  * @return 成功 1，失败 -1
  */
-static int CMatrixLUdcmp(double* MatIO, int order, int* index, double* positivity)
+static int CMatrixLUdcmp(double* MatIO, int order, int* indx, double* positivity)
 {
 	double big, s, tmp;
 	int i, imax = 0, j, k;
@@ -517,7 +517,7 @@ static int CMatrixLUdcmp(double* MatIO, int order, int* index, double* positivit
 			sf[imax] = sf[j];
 		}
 		//记录部分主元选取影响的行在向量索引中
-		index[j] = imax;
+		indx[j] = imax;
 		//处理奇异矩阵
 		/*完成解决L中的元素：除以主元（方程的分母部分）
 		* 对于j=n跳过，因为在最后一行不需要解决L中的元素*/
@@ -537,15 +537,15 @@ static int CMatrixLUdcmp(double* MatIO, int order, int* index, double* positivit
 
 
 /**
- * @brief 使用回代法的LU求解器(LU back-substitution)，解coefMat x = constVec.
+ * @brief 使用回代法的LU求解器(LU back-substitution)，解A·x = B  <=>  coefMat·constSolVec(I) = constSolVec(O).
  * 
  * @param coefMat I 系数矩阵
  * @param n I 系数矩阵的阶
- * @param index I 为LU分解函数 CmatrixLUdcmp() 记录行排列顺序的向量
+ * @param indx I 为LU分解函数 CmatrixLUdcmp() 记录行排列顺序的向量
  * @param constSolVec IO 输入时 为线性方程组的常数向量(constant vector)，
  *					  输出时 为线性方程组的解(solution vector)
  */
-static void CMatrixLUbksb(const double*coefMat , const int order, const int* index, double* constSolVec)
+static void CMatrixLUbksb(const double*coefMat , const int order, const int* indx, double* constSolVec)
 {
 	
 	int i;
@@ -556,7 +556,7 @@ static void CMatrixLUbksb(const double*coefMat , const int order, const int* ind
 
 	//首先，使用前向代入法解Ly = b
 	for (i = 0; i < order; i++) {
-		i_pivot = index[i];
+		i_pivot = indx[i];
 		// 方程的第一项
 		s = constSolVec[i_pivot];
 		constSolVec[i_pivot] = constSolVec[i];
@@ -582,71 +582,110 @@ static void CMatrixLUbksb(const double*coefMat , const int order, const int* ind
 	}
 }
 
+
 /**
- * @brief 通过LU分解实现矩阵求逆 Mat = LU.MatInv = U-1*L-1
- * 
+ * @brief 通过LU分解实现矩阵求逆 Mat = LU.MatInv = U-1*L-1。
+ * 原矩阵会被破坏,所以本函数没啥鸟用！
+ *
  * @param MatSrc I 源矩阵
- * @param order
- * @param MatInv
- * @return 
+ * @param order I 矩阵的维度
+ * @param MatInv O 源矩阵的逆矩阵
+ * @return 1 true; -1 false
  */
-//extern int CmatrixInv(const double* MatSrc, int order, double* MatInv) {
+/*
+ //extern int CMatrixInv_New(const double* MatSrc, int order, double* MatInv) {
+ //
+ //	double positivity;//因LU分解行变换，导致行列式正负的影响
+ //	double * col;
+ //	int i, j, * indx;
+ //
+ //	col = CMatrixd(1, order);
+ //	indx = CMatrixi(1, order);
+	//
+ //	if (!CMatrixLUdcmp(MatSrc, order, indx, &positivity)) { free(indx); free(col); printf("LU分解失败\n"); return -1; }; //Decompose the matrix just once.
+	//
+	////CmatrixShow(A, n, n, 'd');
+ //	for (j = 0; j < order; j++) {           // Find inverse by columns.
+ //		for (i = 0; i < order; i++) 
+ //			col[i] = 0.0;
+ //		col[j] = 1.0;
+ //		CMatrixLUbksb(MatSrc, order, indx, col);
+ //		for (i = 0; i < order; i++) 
+ //			MatInv[i * order + j] = col[i];
+ //	}
+ //	free(col);
+ //	free(indx);
+ //	return 0;
+ //}
+ */
+
+ 
+
+//TODO降低内存使用量，矩阵求逆使用原地变换，降低内存消耗，希望找一个更好的办法
+//由于rtklib使用的数组是列优先，列方向下标递增，解得方程组的解可以直接按列存储，
+//对于行优先还要转置一次，后续待补充
+//extern int CMatrixInv_Situ_test(double* MatSrc, int order) {
 //
 //	double positivity;//因LU分解行变换，导致行列式正负的影响
-//	double * col;
-//	int i, j, * index;
+//	double* col;
+//	int i, j, * indx;
 //
-//	col = CMatrixd(1, order);
-//	index = CMatrixi(1, order);
+//	col = CMatrixd(order, order);
+//	indx = CMatrixi(1, order);
+//	CMatrixCopy(col, MatSrc, order, order, 'd');
 //
-//	if (!CmatrixLUdcmp(MatSrc, order, index, &positivity)) { free(index); free(col); printf("LU分解失败\n"); return -1; }; //Decompose the matrix just once.
-//	//CmatrixShow(A, n, n, 'd');
+//	if (!CMatrixLUdcmp(col, order, indx, &positivity)) { free(indx); free(col); printf("LU分解失败\n"); return -1; }; //Decompose the matrix just once.
+//
 //	for (j = 0; j < order; j++) {           // Find inverse by columns.
-//		for (i = 0; i < order; i++) 
-//			col[i] = 0.0;
-//		col[j] = 1.0;
-//		CmatrixLUbksb(MatSrc, order, index, col);
-//		for (i = 0; i < order; i++) 
-//			MatInv[i * order + j] = col[i];
+//		for (i = 0; i < order; i++)
+//			MatSrc[i*order+j] = 0.0;
+//		MatSrc[j*order+j] = 1.0;
+//		CMatrixLUbksb(col, order, indx, MatSrc+j*order);//?还有个原因是rtklib使用的数组是列优先排列，按列的顺序下标递增；行优先则不行，反正有一个tempMatrix，直接复制得了。
+//		/*for (i = 0; i < order; i++)
+//			MatInv[i * order + j] = col[i];*/
 //	}
 //	free(col);
-//	free(index);
+//	free(indx);
 //
 //
 //	return 0;
 //}
 
 
-//TODO降低内存使用量，使用原地变换，降低内存消耗
-
-extern int CMatrixInv(double* MatSrc, int order, double* MatInv) {
+/**
+  * @brief 通过LU分解实现矩阵求逆 Mat = LU.MatInv = U-1*L-1.
+  *
+  * @param MatSrcInv IO 输入时原矩阵，输出时逆矩阵
+  * @param order	I 矩阵维度
+  * @return
+  */
+extern int CMatrixInv(const double* MatSrcInv, int order) {
 
 	double positivity;//因LU分解行变换，导致行列式正负的影响
-	double* col;
-	int i, j, * index;
+	double* col, * InvTemp;
+	int i, j, * indx;
 
-	col = CMatrixd(order, order);
-	index = CMatrixi(1, order);
-	CMatrixCopy(col, MatSrc, order, order, 'd');
+	InvTemp = CMatrixd(order, order);
+	col = CMatrixd(1, order);
+	indx = CMatrixi(1, order);
 
-	if (!CMatrixLUdcmp(MatSrc, order, index, &positivity)) { free(index); free(col); printf("LU分解失败\n"); return -1; }; //Decompose the matrix just once.
+	if (!CMatrixLUdcmp(MatSrcInv, order, indx, &positivity)) { free(indx); free(col); printf("LU分解失败\n"); return -1; }; //Decompose the matrix just once.
 	//CmatrixShow(A, n, n, 'd');
 	for (j = 0; j < order; j++) {           // Find inverse by columns.
 		for (i = 0; i < order; i++)
-			MatSrc[i*order+j] = 0.0;
-		MatSrc[j*order+j] = 1.0;
-		CMatrixLUbksb(col, order, index, MatSrc+j*order);
-		/*for (i = 0; i < order; i++)
-			MatInv[i * order + j] = col[i];*/
+			col[i] = 0.0;
+		col[j] = 1.0;
+		CMatrixLUbksb(MatSrcInv, order, indx, col);
+		for (i = 0; i < order; i++)
+			InvTemp[i * order + j] = col[i];
 	}
-	free(col);
-	free(index);
+	CMatrixCopy(MatSrcInv, InvTemp, order, order, 'd');
 
+	free(col);
+	free(indx);
+	free(InvTemp);
 
 	return 0;
 }
-
-
-
 
 

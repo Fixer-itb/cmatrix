@@ -125,8 +125,16 @@ int main() {
 	double* matRes = CMatrixd(15, 15);
 	CMatrixCopy(matInv, arrayInv, 15, 15, 'd');
 	CMatrixShow(matInv, 15, 15, 'd');
-	CMatrixInv(matInv, 15,matRes);
+	/*生成新的可逆矩阵*/
+	//CMatrixInv(matInv, 15,matRes);
+	//CMatrixShow(matRes, 15, 15, 'd');
+	//源矩阵被破坏
+	//CMatrixShow(matInv, 15, 15, 'd');
+
+	/*可逆矩阵替换源矩阵*/
+	CMatrixInv(matInv, 15);
 	CMatrixShow(matInv, 15, 15, 'd');
+
 
 
 
