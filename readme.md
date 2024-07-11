@@ -1,31 +1,31 @@
-# ¾ØÕó¼ÆËãµÄÇø±ð
-1. RTKLIBµÄ¾ØÕó´æ´¢ÊÇÒÔÁÐÓÅÏÈÔ­Ôò½øÐÐ¸³Öµ£¬´úÂë¿É¶ÁÐÔ½Ï²î
-2. ¶ÔÓÚÒ»¸öÊý×éµÄ¸³ÖµÒªÒÔÁÐÓÅÏÈµÄÔ­Ôò½øÐÐ¸³Öµ£¬ÈÝÒ×³öÏÖÊäÈëÐÔBUG
-3. ±¾ÊµÏÖÊ¹ÓÃµÄÊÇC/C++ÊµÏÖ£¬ ÊôÓÚÐÐÓÅÏÈµÄ±àÒëÆ÷£¬¶ø²»ÊÇFortune£¬Matlab£¬ÕâÖÖÊµÏÖ¼òÖ±¾ÍÊÇ¶þ³¼Ôô×Ó£¬µ¹·´Ììî¸¡£
+# çŸ©é˜µè®¡ç®—çš„åŒºåˆ«
+1. RTKLIBçš„çŸ©é˜µå­˜å‚¨æ˜¯ä»¥åˆ—ä¼˜å…ˆåŽŸåˆ™è¿›è¡Œèµ‹å€¼
+2. å¯¹äºŽä¸€ä¸ªæ•°ç»„çš„èµ‹å€¼è¦ä»¥åˆ—ä¼˜å…ˆçš„åŽŸåˆ™è¿›è¡Œèµ‹å€¼ï¼Œå®¹æ˜“å‡ºçŽ°è¾“å…¥æ€§BUG
+3. æœ¬å®žçŽ°ä½¿ç”¨çš„æ˜¯C/C++å®žçŽ°ã€‚
 
-# ¾ØÕóÇóÄæµÄ¼¸ÖÖ·½·¨
+# çŸ©é˜µæ±‚é€†çš„å‡ ç§æ–¹æ³•
 
-## 1. ¸ßË¹ÏûÔª·¨(ÊÖËã)
+## 1. é«˜æ–¯æ¶ˆå…ƒæ³•(æ‰‹ç®—)
 
-$[A|I_n]\stackrel{ÐÐ±ä»»}{\longrightarrow}[U|B]\stackrel{ÐÐ±ä»»}{\longrightarrow}[I_n|A^{-1}]$
+$[A|I_n]\stackrel{è¡Œå˜æ¢}{\longrightarrow}[U|B]\stackrel{è¡Œå˜æ¢}{\longrightarrow}[I_n|A^{-1}]$
 
-## 2. LU·Ö½â
+## 2. LUåˆ†è§£
 
 $A=LU\Rightarrow A^{-1}=U^{-1}L^{-1}$
 
-ÆäÖÐLÎªÏÂÈý½Ç¾ØÕó£¬UÎªÉÏÈý½Ç¾ØÕó
+å…¶ä¸­Lä¸ºä¸‹ä¸‰è§’çŸ©é˜µï¼ŒUä¸ºä¸Šä¸‰è§’çŸ©é˜µ
 
-## 3.SVD·Ö½â(ÆæÒìÖµ·Ö½â)
+## 3.SVDåˆ†è§£(å¥‡å¼‚å€¼åˆ†è§£)
 
 $A=UWV^T\Rightarrow A^{-1}=VW^{-1}U^T$
 
-ÆäÖÐ¾ØÕóUÎªÕý½»¾ØÕó£¬WÎª¶Ô½Ç¾ØÕó£¬VÎªÕý½»¾ØÕó
+å…¶ä¸­çŸ©é˜µUä¸ºæ­£äº¤çŸ©é˜µï¼ŒWä¸ºå¯¹è§’çŸ©é˜µï¼ŒVä¸ºæ­£äº¤çŸ©é˜µ
 
-## 4. QR·Ö½â
+## 4. QRåˆ†è§£
 
  $A=QR\Rightarrow A^{-1}=R^{-1}Q^{-1}$
 
-ÆäÖÐQÎªÕý½»¾ØÕó£¬RÎªÉÏÈý½Ç¾ØÕó
+å…¶ä¸­Qä¸ºæ­£äº¤çŸ©é˜µï¼ŒRä¸ºä¸Šä¸‰è§’çŸ©é˜µ
 
 
 
