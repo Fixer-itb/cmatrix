@@ -137,7 +137,7 @@ extern int CMatrixShow(void* matrix, int row, int column, char type) {
 		printf("Invalid matrix pointer\n");
 		return 0;
 	}
-	printf(">>Matrix addr:%x\n", matrix);
+	printf(">>Matrix addr:%p\n", matrix);
 	//for (int k = 0; k < row * column; k++)
 	//{
 	//	printf(" %0.5f", ((double*)matrix)[k]);
@@ -157,12 +157,13 @@ extern int CMatrixShow(void* matrix, int row, int column, char type) {
 				printf("%.10f\t", ((double*)matrix)[i * column + j]);
 				break;
 			default:
-				printf("%.6f\t", ((float*)matrix)[i * column + j]);
+				printf("Unknown matrix type\n");;
 				return 0;
 			}
 		}
 		printf("\n");
 	}
+	return 1;
 }
 
 /**
